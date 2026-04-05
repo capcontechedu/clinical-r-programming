@@ -21,8 +21,18 @@ if (!any(dir.exists("srcdata"))) {
 setwd("./srcdata")
 
 # creating study data
-std <- c("STUDY1","STUDY2","STUDY3","STUDY4")
-for (jj in 1:length(std)) {
+input <- utils::winDialogString("Enter a number between 1 and 6 (exclusive):", default = "2")
+num <- as.numeric(input)
+
+if (num > 5) {
+  num = 5
+} else if (num < 2) {
+  num = 2
+} 
+
+std <- paste0(rep("STUDY",num),1:num)
+
+for (jj in 1:num) {
 
   ii <- std[jj]
   
@@ -50,10 +60,10 @@ for (jj in 1:length(std)) {
 
   message(paste("read file path created as", paste0("apath",jj)))
   message(paste("in :",apath))
-  cat(bgWhite(red("For example :\n To read adsl data into xx you can use below code:\n xx <- read_rds(file = file.path(apath1,'adam_adsl.rds'))")))
+  cat(bgWhite(red("For example :\n To read adsl data into xx you can use below code:\n xx <- read_rds(file = file.path(",paste0("apath",jj),",'adam_adsl.rds'))")))
 
 }
 
 setwd("..")
-remove(list = c("m",adf,"adf","dfls","ds","x","y","ii","apath","jj","std","pkgs","p"))
+remove(list = c("m",adf,"adf","dfls","ds","x","y","ii","apath","input","jj","std","pkgs","p","num"))
 detach("package:crayon", unload = TRUE)
