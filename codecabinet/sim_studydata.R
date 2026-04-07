@@ -26,8 +26,10 @@ num <- as.numeric(input)
 
 if (num > 5) {
   num = 5
+  warnings("Number entered exceeds the requirement, creating 5 (Maximum threshold) study data folders")
 } else if (num < 2) {
   num = 2
+  warnings("Number entered less than threshold, creating 2 (Minimum threshold) study data folders")
 } 
 
 std <- paste0(rep("STUDY",num),1:num)
