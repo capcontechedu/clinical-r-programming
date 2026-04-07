@@ -5,7 +5,7 @@
 # created Date : 05Apr2026
 ##################################################
 # loading package
-pkgs <- c("safetyData", "stringr", "dplyr","crayon")
+pkgs <- c("safetyData", "stringr", "dplyr","crayon","readr")
 
 for (p in pkgs) {
   if (!requireNamespace(p, quietly = TRUE)) {
