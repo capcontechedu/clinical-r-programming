@@ -38,6 +38,17 @@ a:hover {
   text-decoration: underline;
 }
 
+ul ul {
+  margin-left: 40px;
+}
+
+ul {
+  margin-left: 20px;
+}
+
+.sublist {
+  margin-left: 20px;
+}
 /* =========================================================
    TYPOGRAPHY
    ========================================================= */
