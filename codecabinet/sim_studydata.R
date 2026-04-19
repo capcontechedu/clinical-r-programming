@@ -57,7 +57,7 @@ for (jj in 1:num) {
     write_rds(y,file = paste0(getwd(),"/",ii,"/",ds,".rds"))
   }
   
-  apath <- paste0(getwd(),"/srcdata/",ii)
+  apath <- paste0(getwd(),"/",ii)
   assign(paste0("apath",jj),apath)
 
   message(paste("read file path created as", paste0("apath",jj)))
