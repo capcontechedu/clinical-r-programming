@@ -35,7 +35,7 @@ if (num > 5) {
 std <- paste0(rep("STUDY",num),1:num)
 
 for (jj in 1:num) {
-
+  
   ii <- std[jj]
   
   if (!any(dir.exists(ii))) {
@@ -48,24 +48,25 @@ for (jj in 1:num) {
   adf <- dfls[!str_detect(dfls,"sdtm")]
   
   for (ds in adf) {
+    ds_i <- str_remove_all(ds,"adam_")
     x <- data(list = ds, package = "safetyData")
     y <- get(x)
     y <- y %>% 
       mutate(
         STUDYID = str_c(STUDYID,ii,sep = "-")
       )
-    write_rds(y,file = paste0(getwd(),"/",ii,"/",ds,".rds"))
+    write_rds(y,file = paste0(getwd(),"/",ii,"/",ds_i,".rds"))
   }
   
   apath <- paste0(getwd(),"/",ii)
   assign(paste0("apath",jj),apath)
-
+  
   message(paste("read file path created as", paste0("apath",jj)))
   message(paste("in :",apath))
-  cat(bgWhite(red("For example :\n To read adsl data into xx you can use below code:\n xx <- read_rds(file = file.path(",paste0("apath",jj),",'adam_adsl.rds'))")))
-
+  cat(bgWhite(red("For example :\n To read adsl data into xx you can use below code:\n xx <- read_rds(file = file.path(",paste0("apath",jj),",'adsl.rds'))")))
+  
 }
 
 setwd("..")
-remove(list = c("m",adf,"adf","dfls","ds","x","y","ii","apath","input","jj","std","pkgs","p","num"))
+remove(list = c("m",adf,"adf","dfls","ds","ds_i","x","y","ii","apath","input","jj","std","pkgs","p","num"))
 detach("package:crayon", unload = TRUE)
