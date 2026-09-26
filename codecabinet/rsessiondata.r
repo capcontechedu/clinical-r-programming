@@ -46,5 +46,5 @@ for (a in w) {
     write_xpt(b,paste0(pthvec[3],"/",str_remove(a,"sdtm_"),".xpt"),version = 5)
   }
 }
-
+message("rsession data created successfully and available in `source/`")
 remove(a,b,pthvec,w,libvec,i)
