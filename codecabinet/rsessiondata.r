@@ -39,11 +39,11 @@ for (a in w) {
   b <- get(a)
   
   if (str_detect(a,"adam_")){
-    write_xpt(b,paste0(pthvec[2],"/",str_remove(a,"adam_"),".xpt"))
+    write_xpt(b,paste0(pthvec[2],"/",str_remove(a,"adam_"),".xpt"),version = 5)
   }
   
   if (str_detect(a,"sdtm_")){
-    write_xpt(b,paste0(pthvec[3],"/",str_remove(a,"sdtm_"),".xpt"))
+    write_xpt(b,paste0(pthvec[3],"/",str_remove(a,"sdtm_"),".xpt"),version = 5)
   }
 }
 
