@@ -21,6 +21,59 @@ validate_adae <- function(dfnam){
     
     library(i, character.only = TRUE)
   }
+  
+  stdtimput <- function(dtc,refdt) {
+    
+    if (!is.character(dtc)){
+      message("Enter valid Date variable for imputation")
+      return(NULL)
+    } 
+    if (!is.Date(refdt)){
+      message("Enter valid reference Date variable for imputation")
+      return(NULL)
+    }
+    
+    trsdt <- refdt
+    # length of dtc 
+    len <- str_length(dtc)
+    
+    # dtc split
+    sy <- as.numeric(substr(dtc,1,4))
+    sm <- as.numeric(substr(dtc,6,7))
+    
+    # trtsdt split
+    trty <- year(trsdt)
+    trtm <- month(trsdt)
+    
+    dtc1 <- data.frame( dtc,
+                        trsdt,
+                        len,
+                        sy,
+                        sm,
+                        trty,
+                        trtm)
+    
+    
+    #########
+    
+    dtc2 <- dtc1 %>% 
+      mutate(
+        astdt_ = case_when(
+          (len >= 10) ~ parse_date_time(substr(dtc,1,10), order = c("Ymd","Ym","Y")),
+          (len ==4 & sy == trty) ~ trsdt, # logic A
+          (len ==4 & sy != trty) ~ make_date(year = sy,month = 01,day = 01), # logic C
+          (len ==7 & sm != trtm) ~ make_date(year = sy,month = sm,day = 01), # logic B
+          (len ==7 & sm == trtm & sy == trty) ~ trsdt, # logic A
+          (len ==7 & sm == trtm & sy != trty) ~ make_date(year = sy,month = sm,day = 01), # logic B,
+          TRUE ~ NA_Date_
+        )
+      )
+    
+    atdt <- date(dtc2$astdt_)
+    
+    return(atdt)
+  }
+  
   ## ADAE dataset creation 
   
   # read sdtm ae
@@ -35,14 +88,14 @@ validate_adae <- function(dfnam){
   ds01 <- ae |> 
     left_join(asl, by = c("STUDYID","USUBJID")) |> 
     mutate(
-      ASTDT = start_dt_imput(AESTDTC,TRTSDT),
+      ASTDT = stdtimput(AESTDTC,TRTSDT),
       ASTDTF = case_when(
         (str_length(AESTDTC)==7 & !is.na(ASTDT)) ~ "D",
         (str_length(AESTDTC)==4 & !is.na(ASTDT)) ~ "M"
       ),
       AENDT = if_else(!is.na(AEENDTC),ymd(AEENDTC),NA_Date_)
     )
-  
+
   ## ---- DURATION VARIABLES ----
   ds02 <- ds01 |> 
     mutate(
@@ -85,7 +138,7 @@ validate_adae <- function(dfnam){
       )
     )
   
-  flag_firstrec <- function(indata,cond,sort_ord,flg_grp,varnam) {
+  flg_frst <- function(indata,cond,sort_ord,flg_grp,varnam) {
     
     aa <- {{indata}} |> 
       filter({{cond}}) |> 
@@ -109,21 +162,21 @@ validate_adae <- function(dfnam){
   }
   
   # AOCCFL derivation 
-  ds04 <- flag_firstrec(indata=ds03,
+  ds04 <- flg_frst(indata=ds03,
                         cond = (TRTEMFL=="Y"),
                         sort_ord = c("USUBJID","ASTDT","AESEQ"),
                         flg_grp = "USUBJID",
                         varnam="AOCCFL"
   )
   # AOCCSFL drivation 
-  ds04 <- flag_firstrec(indata=ds04,
+  ds04 <- flg_frst(indata=ds04,
                         cond = (TRTEMFL=="Y"),
                         sort_ord = c("USUBJID","AEBODSYS","ASTDT","AESEQ"),
                         flg_grp = c("USUBJID","AEBODSYS"),
                         varnam="AOCCSFL"
   )
   # AOCCPFL derivation 
-  ds04 <- flag_firstrec(indata=ds04,
+  ds04 <- flg_frst(indata=ds04,
                         cond = (TRTEMFL=="Y"),
                         sort_ord = c("USUBJID","AEBODSYS","AEDECOD","ASTDT","AESEQ"),
                         flg_grp = c("USUBJID","AEBODSYS","AEDECOD"),
@@ -131,21 +184,21 @@ validate_adae <- function(dfnam){
   )
   
   # AOCC02FL derivation 
-  ds04 <- flag_firstrec(indata=ds04,
+  ds04 <- flg_frst(indata=ds04,
                         cond = (TRTEMFL=="Y" & AESER=="Y"),
                         sort_ord = c("USUBJID","ASTDT","AESEQ"),
                         flg_grp = "USUBJID",
                         varnam="AOCC02FL"
   )
   # AOCC03FL drivation 
-  ds04 <- flag_firstrec(indata=ds04,
+  ds04 <- flg_frst(indata=ds04,
                         cond = (TRTEMFL=="Y" & AESER=="Y"),
                         sort_ord = c("USUBJID","AEBODSYS","ASTDT","AESEQ"),
                         flg_grp = c("USUBJID","AEBODSYS"),
                         varnam="AOCC03FL"
   )
   # AOCC04FL derivation
-  ds04 <- flag_firstrec(indata=ds04,
+  ds04 <- flg_frst(indata=ds04,
                         cond = (TRTEMFL=="Y" & AESER=="Y"),
                         sort_ord = c("USUBJID","AEBODSYS","AEDECOD","ASTDT","AESEQ"),
                         flg_grp = c("USUBJID","AEBODSYS","AEDECOD"),
@@ -153,13 +206,13 @@ validate_adae <- function(dfnam){
   )
   
   # AOCC01FL derivation
-  ds04 <- flag_firstrec(indata=ds04,
+  ds04 <- flg_frst(indata=ds04,
                         cond = (TRTEMFL=="Y" & CQ01NAM !=""),
                         sort_ord = c("USUBJID","ASTDT","AESEQ"),
                         flg_grp = c("USUBJID"),
                         varnam="AOCC01FL"
   )
-  
+  remove(stdtimput,flg_frst)
   ## ---- Final dataset ----
   ds04 <- ds04 |> 
     arrange(USUBJID,AEDTC,ASTDT,AESPID,AEBODSYS,AEDECOD,AETERM,AESEQ) |> 
